@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>		
+		<!-- Basic Page Needs
+	  ================================================== -->
+		<meta charset="utf-8">
+		<title>Share a OLA cab</title>
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<!-- Mobile Specific Metas
+	  ================================================== -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+		<!-- CSS
+	  ================================================== -->
+		<link rel="stylesheet" href="stylesheets/base.css">
+		<link rel="stylesheet" href="stylesheets/skeleton.css">
+		<link rel="stylesheet" href="stylesheets/layout.css">
+
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+
+		<!-- Favicons
+		================================================== -->
+		<link rel="shortcut icon" href="images/favicon.ico">
+		<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+		<style>
+			#maps {   height:300px;   background:#6699cc; }
+			.header {
+				background-color: #5588bb;
+				margin-bottom: 20px;
+				color: white;
+				text-align: center;
+				padding-top: 10px;
+				padding-bottom: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="header">Share a OLA cab</div>
+		<div class="container">			
+			<input type="text" id="start" name="start" placeholder="START"/>
+			<input type="text" name="dest" id="dest" placeholder="DESTINATION"/>
+
+			<div id="maps"></div>
+			<div id="current_location"></div>
+
+			<button id="check">Check for cars :)</button>
+		</div>
+		<script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+		<script src="./js/jquery.mobile/jquery.mobile-1.4.4.min.js"></script>
+		<!-- <script src="//maps.google.com/maps/api/js?sensor=true"></script> -->
+		
+		<script src="//maps.googleapis.com/maps/api/js?sensor=false&libraries=places"></script>
+		<script src="./js/gmaps.js"></script>
+		<script src="./js/jquery.geocomplete.min.js"></script>
+		<script>
+		var gmaps;
+		(function() {
+			gmaps = new GMaps({
+  				div: '#maps',
+  				lat: -12.043333,
+  				lng: -77.028333
+			});
+
+			GMaps.geolocate({
+			  success: function(position) {
+			  	$("#start").val(position.coords.latitude + "," + position.coords.longitude);
+			    gmaps.setCenter(position.coords.latitude, position.coords.longitude);
+			  },
+			  error: function(error) {
+			    alert('Geolocation failed: '+error.message);
+			  },
+			  not_supported: function() {
+			    alert("Your browser does not support geolocation");
+			  },
+			  always: function() {
+			    //alert("Done!");
+			  }
+			});
+
+
+			$("#check").on("click", function() {
+				GMaps.geocode({
+				  address: document.getElementById("start").value,
+				  callback: function(results, status) {
+				    if (status == 'OK') {
+				      var latlng = results[0].geometry.location;
+				      gmaps.setCenter(latlng.lat(), latlng.lng());
+				      gmaps.addMarker({
+				        lat: latlng.lat(),
+				        lng: latlng.lng()
+				      });
+
+				      document.getElementById("current_location").innerHTML = results[0].formatted_address;
+				      console.log(results);
+				    }
+				  }
+				});
+			});	
+
+
+			//var URL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=geocode&language=en&userid=rohan7799&key=AIzaSyARLubbJiteESQF-7WSWhcwNUg-cEQgg9s&input=";
+
+			$("input#dest").geocomplete();
+		})();		
+		</script>
+	</body>
+</html>
+
